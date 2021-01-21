@@ -1,4 +1,4 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { StampUser } from "./StampUser";
 import { StampResourceTypes } from "./StampResourceTypes";
 import { StampTaskStates } from "./StampTaskStates";
@@ -8,15 +8,10 @@ import { StampTaskStates } from "./StampTaskStates";
 @Index("FK_stamp_task_stamp_resource_types", ["resourceType"], {})
 @Entity("stamp_task", { schema: "stamp-hyc" })
 export class StampTask {
-  @Column("decimal", {
-    primary: true,
-    name: "task_id",
-    precision: 10,
-    scale: 0,
-  })
+  @PrimaryGeneratedColumn()
   taskId: string;
 
-  @Column("decimal", { name: "user_id", precision: 10, scale: 0 })
+  @Column("int")
   userId: string;
 
   @Column("varchar", { name: "task_name", length: 32, default: () => "'0'" })
@@ -24,7 +19,7 @@ export class StampTask {
 
   @Column("datetime", {
     name: "start_time",
-    default: () => "'0000-00-00 00:00:00'",
+    default: () => "'2010-01-01 00:00:00'",
   })
   startTime: Date;
 

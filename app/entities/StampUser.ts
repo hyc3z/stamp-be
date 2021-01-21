@@ -1,14 +1,9 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { BaseEntity, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { StampTask } from "./StampTask";
 
 @Entity("stamp_user", { schema: "stamp-hyc" })
-export class StampUser {
-  @Column("decimal", {
-    primary: true,
-    name: "user_id",
-    precision: 10,
-    scale: 0,
-  })
+export class StampUser{
+  @PrimaryGeneratedColumn()
   userId: string;
 
   @Column("varchar", { name: "user_pwd", length: 32, default: () => "'0'" })
@@ -20,7 +15,6 @@ export class StampUser {
   @Column("datetime", {
     name: "create_time",
     nullable: true,
-    default: () => "'0000-00-00 00:00:00'",
   })
   createTime: Date | null;
 

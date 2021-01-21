@@ -14,7 +14,7 @@ module.exports = {
   password: 'Huyichong',
   database: 'stamp-hyc',
   entities: [
-    __dirname + "/app/entities/*.ts"
+    "/app/entities/*.ts"
   ],
   useNewUrlParser: true,
   useUnifiedTopology: true,

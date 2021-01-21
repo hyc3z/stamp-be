@@ -1,10 +1,12 @@
 import * as entities from 'app/entities'
 import * as bootstrap from './bootstrap'
 import { print } from './utils'
-import { createConnection, getConnectionOptions } from 'typeorm'
+import { Connection, createConnection, getConnectionOptions } from 'typeorm'
+
+let connection : Connection;
 ;(async () => {
   const connectionOptions = await getConnectionOptions()
-  const connection = await createConnection({
+  connection = await createConnection({
     ...connectionOptions,
     entities: Object.keys(entities).map(name => entities[name]),
   })
@@ -16,3 +18,5 @@ import { createConnection, getConnectionOptions } from 'typeorm'
 
   bootstrap.connected()
 })().catch(error => console.log(error))
+
+export default connection;
