@@ -7,12 +7,16 @@
 import Environment from 'configs/environments'
 
 module.exports = {
-  type: Environment.DB_TYPE,
-  host: Environment.MY_HOST,
-  port: Environment.MY_PORT,
-  username: Environment.USERNAME,
-  password: Environment.PASSWORD,
-  database: Environment.DATABASE,
+  type: 'mysql',
+  host: 'localhost',
+  port: '3306',
+  username: 'root',
+  password: 'Huyichong',
+  database: 'stamp-hyc',
+  entities: [
+    __dirname + "/app/entities/*.ts"
+  ],
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  synchronize: true,
 }
