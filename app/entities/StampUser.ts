@@ -6,7 +6,7 @@ export class StampUser{
   @PrimaryGeneratedColumn()
   userId: string;
 
-  @Column("varchar", { name: "user_pwd", length: 32, default: () => "'0'" })
+  @Column("varchar", { name: "user_pwd", length: 64, default: () => "'0'" })
   userPwd: string;
 
   @Column("varchar", { name: "user_name", length: 20, default: () => "'0'" })
