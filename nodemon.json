@@ -13,6 +13,7 @@
     "test/**/*",
     "docs/*"
   ],
+  
   "events": {
     "restart": ""
   },
