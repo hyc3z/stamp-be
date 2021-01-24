@@ -1,7 +1,7 @@
 export default {
   identity: 'development',
 
-  port: 3000,
+  port: 3078,
 
   DB_TYPE: 'mongodb',
   MY_HOST: '127.0.0.1',

@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --config .jest.config.js --no-cache --detectOpenHandles",
     "prettier": "prettier --write .",
-    "dev": "export NODE_ENV=development; nodemon --config nodemon.json",
+    "start": " nodemon --config nodemon.json",
     "build": "bash ./build.sh",
     "mongo": "docker-compose -f compose.yml up -d"
   },
