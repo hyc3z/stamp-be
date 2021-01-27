@@ -1,6 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne } from "typeorm";
-import { StampNodeInfo } from "./StampNodeInfo";
 import { StampResourceTypes } from "./StampResourceTypes";
+import { StampNodeInfo } from "./StampNodeInfo";
 
 @Index("FK_stamp_compute_resources_stamp_node_info", ["nodeId"], {})
 @Entity("stamp_compute_resources", { schema: "stamp-hyc" })
@@ -25,18 +25,18 @@ export class StampComputeResources {
   unitPrice: number;
 
   @ManyToOne(
-    () => StampNodeInfo,
-    (stampNodeInfo) => stampNodeInfo.stampComputeResources,
-    { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
-  )
-  @JoinColumn([{ name: "node_id", referencedColumnName: "nodeId" }])
-  node: StampNodeInfo;
-
-  @ManyToOne(
     () => StampResourceTypes,
     (stampResourceTypes) => stampResourceTypes.stampComputeResources,
     { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
   )
   @JoinColumn([{ name: "resource_type", referencedColumnName: "typeId" }])
   resourceType2: StampResourceTypes;
+
+  @ManyToOne(
+    () => StampNodeInfo,
+    (stampNodeInfo) => stampNodeInfo.stampComputeResources,
+    { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
+  )
+  @JoinColumn([{ name: "node_id", referencedColumnName: "nodeId" }])
+  node: StampNodeInfo;
 }

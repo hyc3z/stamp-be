@@ -1,18 +1,25 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { StampTaskStates } from "./StampTaskStates";
 import { StampUser } from "./StampUser";
 import { StampResourceTypes } from "./StampResourceTypes";
-import { StampTaskStates } from "./StampTaskStates";
 
-@Index("FK__stamp_user", ["userId"], {})
-@Index("FK_stamp_task_stamp_task_states", ["stateId"], {})
 @Index("FK_stamp_task_stamp_resource_types", ["resourceType"], {})
+@Index("FK_stamp_task_stamp_task_states", ["stateId"], {})
+@Index("FK__stamp_user", ["userId"], {})
 @Entity("stamp_task", { schema: "stamp-hyc" })
 export class StampTask {
-  @PrimaryGeneratedColumn()
-  taskId: string;
+  @PrimaryGeneratedColumn({ type: "int", name: "taskId" })
+  taskId: number;
 
-  @Column("int")
-  userId: string;
+  @Column("int", { name: "userId" })
+  userId: number;
 
   @Column("varchar", { name: "task_name", length: 32, default: () => "'0'" })
   taskName: string;
@@ -35,6 +42,14 @@ export class StampTask {
   @Column("int", { name: "resource_amount" })
   resourceAmount: number;
 
+  @ManyToOne(
+    () => StampTaskStates,
+    (stampTaskStates) => stampTaskStates.stampTasks,
+    { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
+  )
+  @JoinColumn([{ name: "state_id", referencedColumnName: "stateId" }])
+  state: StampTaskStates;
+
   @ManyToOne(() => StampUser, (stampUser) => stampUser.stampTasks, {
     onDelete: "RESTRICT",
     onUpdate: "RESTRICT",
@@ -49,12 +64,4 @@ export class StampTask {
   )
   @JoinColumn([{ name: "resource_type", referencedColumnName: "typeId" }])
   resourceType2: StampResourceTypes;
-
-  @ManyToOne(
-    () => StampTaskStates,
-    (stampTaskStates) => stampTaskStates.stampTasks,
-    { onDelete: "NO ACTION", onUpdate: "NO ACTION" }
-  )
-  @JoinColumn([{ name: "state_id", referencedColumnName: "stateId" }])
-  state: StampTaskStates;
 }

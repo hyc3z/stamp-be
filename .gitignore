@@ -198,3 +198,6 @@ gen
 ### PuTTY template
 # Private key
 *.ppk
+
+# typeorm generater config
+.tomg-config

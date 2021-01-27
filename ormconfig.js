@@ -7,11 +7,11 @@
 import Environment from 'configs/environments'
 
 module.exports = {
-  type: 'mysql',
+  type: 'mariadb',
   host: 'localhost',
   port: '3306',
   username: 'root',
-  password: 'Huyichong',
+  password: 'p/q2-q4!',
   database: 'stamp-hyc',
   entities: [
     "/app/entities/*.ts"
