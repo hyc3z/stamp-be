@@ -34,7 +34,7 @@ export class StampUser {
   @Column("int", { name: "vcoin", default: () => "'1000'" })
   vcoin: number;
 
-  @Column("int", { name: "gid", nullable: true, default: () => "'0'" })
+  @Column("int", { name: "gid", nullable: true })
   gid: number | null;
 
   @Column("int", {

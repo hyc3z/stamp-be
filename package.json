@@ -1,5 +1,5 @@
 {
-  "name": "stamp-be-koa-ts",
+  "name": "stamp-be",
   "version": "0.0.1",
   "license": "MIT",
   "main": "app.ts",
