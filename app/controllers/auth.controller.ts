@@ -10,16 +10,13 @@ export class AuthController {
   async login(@QueryParam('username') username: string, @QueryParam('password') password: string): Promise<any> {
     let loginSucess = await UserService.validate(username, password);
     if(loginSucess === true){
-      console.log("Auth passed.")
-      let body= jsonwebtoken.sign({
-          data: username,
-          //exp in seconds
-        }, "jwt-hyc")
+      let body = await UserService.encodejwt(username)
       return body.toString();
     }
     return undefined;
   }
 
+  // 
   // @Get('/secret')
   // async debug(): Promise<StampUser[]>{
   //   return UserService.getUsers();
@@ -29,4 +26,11 @@ export class AuthController {
   async register(@QueryParam("username") username: string, @QueryParam('password') password: string): Promise<any> {
       return UserService.register(username, password);
   }
+
+  // Dangerous: comment in production
+  @Get('/delete')
+  async delete(@QueryParam("username") username: string, @QueryParam('password') password: string): Promise<any>{
+    return UserService.delete(username, password);
+  }
+  
 }

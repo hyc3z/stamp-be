@@ -11,6 +11,7 @@ export const routingConfigs: RoutingControllersOptions = {
 
   interceptors: dictToArray(interceptors),
 
+  cors: true,
   // router prefix
   // e.g. api => http://hostname:port/{routePrefix}/{controller.method}
   // routePrefix: '/apis',

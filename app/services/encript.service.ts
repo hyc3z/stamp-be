@@ -2,6 +2,8 @@ import { Service } from 'typedi'
 import { getConnection, Connection } from 'typeorm';
 import crypto from 'crypto'
 import dateformat from 'dateformat'
+import jwt_decode from 'jwt-decode'
+
 @Service()
 export class EncriptService {
     

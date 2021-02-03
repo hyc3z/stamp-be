@@ -21,7 +21,7 @@
     }
   },
 
-  "compileOnSave": false,
+  "compileOnSave": true,
   "includes": [
     "src/**/*"
   ],

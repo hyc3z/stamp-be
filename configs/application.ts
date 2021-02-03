@@ -1,5 +1,6 @@
 import 'reflect-metadata'
 import Koa from 'koa'
+import cors from '@koa/cors'
 import session from 'koa-session'
 import jwt from 'koa-jwt'
 import { Container } from 'typedi'
@@ -7,6 +8,7 @@ import { useDatabase } from './customs'
 import { routingConfigs } from './routing.options'
 import { useMiddlewares } from './koa.middlewares'
 import { useKoaServer, useContainer } from 'routing-controllers'
+import decode from 'koa-jwt-decode'
 if (useDatabase) {
   require('./connection')
 }
@@ -26,15 +28,15 @@ const CONFIG = {
 
 const createServer = async (): Promise<Koa> => {
   const koa: Koa = new Koa()
-
+  
   useMiddlewares(koa)
 
   const app: Koa = useKoaServer<Koa>(koa, routingConfigs)
+  app.use(cors());
 
   useContainer(Container)
   app.use(jwt({ secret: 'jwt-hyc' }).unless({ path: [/^\/user\/*/] }));
 
-  
   return app
 }
 

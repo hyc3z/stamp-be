@@ -508,6 +508,13 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
+"@koa/cors@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@koa/cors/-/cors-3.1.0.tgz#618bb073438cfdbd3ebd0e648a76e33b84f3a3b2"
+  integrity sha512-7ulRC1da/rBa6kj6P4g2aJfnET3z8Uf3SWu60cjbtxTA5g8lxRdX/Bd2P92EagGwwAhANeNw8T8if99rJliR6Q==
+  dependencies:
+    vary "^1.1.2"
+
 "@sindresorhus/is@^0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
@@ -2019,6 +2026,11 @@ diff@^4.0.1:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
+
+directory-tree@^2.2.6:
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/directory-tree/-/directory-tree-2.2.6.tgz#7ba77554d30993ead67cb03d415faffd363b0816"
+  integrity sha512-0xF1t4fRkd2vYCremWjhcP4xWTnshzfPZpTCH3F1yJTXhW84YQQM1MasAMnnqyMAkNwGuUEdg9UzuuUo1uoHtA==
 
 domexception@^2.0.1:
   version "2.0.1"
@@ -3689,6 +3701,21 @@ jws@3.x.x, jws@^3.2.2:
     jwa "^1.4.1"
     safe-buffer "^5.0.1"
 
+jwt-decode@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-2.2.0.tgz#7d86bd56679f58ce6a84704a657dd392bba81a79"
+  integrity sha1-fYa9VmefWM5qhHBKZX3TkruoGnk=
+
+jwt-decode@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/jwt-decode/-/jwt-decode-3.1.2.tgz#3fb319f3675a2df0c2895c8f5e9fa4b67b04ed59"
+  integrity sha512-UfpWE/VZn0iP50d8cz9NrZLM9lSWhcJ+0Gt/nm4by88UL+J1SiKN8/5dkjMmbEzwL2CAe+67GsegCbIKtbp75A==
+
+kcors@^2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/kcors/-/kcors-2.2.2.tgz#b6250e7a4f0a33c8f477b7fd0dfa11a3f3ca518d"
+  integrity sha512-rIqbKa2S0gT0wC/790jsQM6hNpABHBNWQ7+XYS1xJV6zOGxlanW+RtCmlDn6wPZsGpRk371yy8abfBgl2OTavg==
+
 keygrip@~1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/keygrip/-/keygrip-1.1.0.tgz#871b1681d5e159c62a445b0c74b615e0917e7226"
@@ -3759,6 +3786,13 @@ koa-convert@^1.2.0:
   dependencies:
     co "^4.6.0"
     koa-compose "^3.0.0"
+
+koa-jwt-decode@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/koa-jwt-decode/-/koa-jwt-decode-1.0.0.tgz#e812db07c368fd40242a1f0301a3e97fdafbd1f8"
+  integrity sha512-6J1yNtoeeDtUCQsf/y8mKgdT7MvU0XA8Pf/uNot8AT/OEACHQ8n0dFOPzcGgVEsRxhAXknxc9ggPe773sgHMCw==
+  dependencies:
+    jwt-decode "^2.2.0"
 
 koa-jwt@^4.0.0:
   version "4.0.0"
