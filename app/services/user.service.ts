@@ -21,6 +21,12 @@ export class UserService {
     return jsonwebtoken.decode(authString)['data']
   }
 
+  static async verifyjwt(headerParams: any): Promise<any> {
+    let authHeader = headerParams['authorization']
+    let authString = authHeader.substring(7)
+    return jsonwebtoken.verify(authString, "jwt-hyc")
+  }
+
   static async encodejwt(username: string): Promise<string> {
     return jsonwebtoken.sign({
       data: username,

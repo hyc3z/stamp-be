@@ -1,5 +1,5 @@
 import { StampUser } from 'app/entities';
-import { Get, JsonController, QueryParam, Param, Session, Ctx} from 'routing-controllers'
+import { Get, JsonController, QueryParam, Param, Session, Ctx, HeaderParams} from 'routing-controllers'
 import {UserService} from '../services/user.service'
 import jsonwebtoken from 'jsonwebtoken'
 @JsonController('/user')
@@ -7,7 +7,9 @@ export class AuthController {
   constructor() {}
 
   @Get('/login')
-  async login(@QueryParam('username') username: string, @QueryParam('password') password: string): Promise<any> {
+  async login(@HeaderParams() param:any): Promise<any> {
+    const username = param['stamp_oauth_username']
+    const password = param['stamp_oauth_pwd']
     let loginSucess = await UserService.validate(username, password);
     if(loginSucess === true){
       let body = await UserService.encodejwt(username)
@@ -16,6 +18,16 @@ export class AuthController {
     return undefined;
   }
 
+  @Get('/validate')
+  async validate(@HeaderParams() param:any): Promise<any> {
+    try {
+    let loginSucess = await UserService.verifyjwt(param);
+    return "true"
+    } catch (error) {
+      return "unauthorized"
+    }
+    
+  }
   // 
   // @Get('/secret')
   // async debug(): Promise<StampUser[]>{
