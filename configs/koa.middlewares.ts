@@ -7,7 +7,7 @@ import jwt from 'koa-jwt'
 export const useMiddlewares = <T extends Koa>(app: T): T => {
   Environment.identity !== 'test' && app.use(logger())
 
-  app.use(bodyParser())
+  app.use(bodyParser({enableTypes: ['json', 'form', 'text']}))
 
   return app
 }

@@ -26,6 +26,14 @@ export class FileService {
         fs.writeFile(userpath, file.buffer, (err) => { if(err) { console.log(err);result = false}})
         return result 
     }
+
+    static async saveEditedScript(username: string, filename: any, script: any): Promise<any> {
+        let result = true;
+        const userpath = await this.getDir(username, "scripts", filename)
+        fs.writeFile(userpath, script, (err) => { if(err) { console.log(err);result = false}})
+        return result 
+    }
+
     static async getScriptFileData(username:string, path: string): Promise<any> {
         const userpath = await this.getDir(username, "scripts", path)
         try {
@@ -37,6 +45,39 @@ export class FileService {
         }
         
     }
+
+    static async deleteScriptData(username:string, path: string): Promise<any> {
+        const userpath = await this.getDir(username, "scripts", path)
+        try {
+            fs.unlink(userpath, (err) => {
+                if (err) {
+                    console.log(err)
+                    return ""
+                }
+            })
+        } catch (error) {
+            console.log(error)
+            return ""
+        }
+        
+    }
+
+    static async deleteProgramData(username:string, path: string): Promise<any> {
+        const userpath = await this.getDir(username, "program", path)
+        try {
+            fs.unlink(userpath, (err) => {
+                if (err) {
+                    console.log(err)
+                    return ""
+                }
+            })
+        } catch (error) {
+            console.log(error)
+            return ""
+        }
+        
+    }
+
     static async getProgramfilesDevExtreme(username: any): Promise<any> {
         const userpath = await this.getDir(username, "program")
         const dt = directory_tree(userpath)
