@@ -9,9 +9,9 @@ export class TaskController {
 
   @Get('/tasks')
   async getTasks(): Promise<any> {
-    // TODO implement tasks
+    // TODO implement authorization
     // let loginSucess = await UserService.validate(username, password);
-    return undefined;
+    return SlurmService.getUnfinishedJobs();
   }
   
   @Get('/create')
@@ -28,7 +28,5 @@ export class TaskController {
       ctx.status = 500
       return ctx
     }
-    
-    
   }
 }

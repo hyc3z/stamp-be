@@ -6,10 +6,10 @@ import slurmcfg from '../../configs/slurm.config'
 import dateformat from 'dateformat'
 import { Method } from 'routing-controllers';
 import { FileService } from './file.service';
-import { StampTask } from 'app/entities';
+import { StampTask, StampTaskStates } from 'app/entities';
 import { UserService } from './user.service';
-
-
+import { SlurmJobBrief, SlurmJobBriefKeys, SlurmJobInfo } from '../meta/SlurmJobMeta'
+import { keys } from 'ts-transformer-keys'
 
 const headerss = {
     'X-SLURM-USER-NAME': slurmcfg.jwt_user,
@@ -86,5 +86,51 @@ export class SlurmService extends SlurmRequest{
         return this.httpGet("nodes")
     }
     
+    static async getUnfinishedJobs(username?: string): Promise<any> {
+        const response = await this.httpGet("jobs")
+        return this.parseJobInfo(response.jobs)
+    }
     
+    static async parseJobInfo(respJobList: Array<SlurmJobInfo>): Promise<any> {
+        const typedJobList = [] as Array<any>
+        const transformJobToBrief = (sjb: SlurmJobBrief, proto: SlurmJobInfo) => {
+            SlurmJobBriefKeys.forEach(key => {
+                if(["start_time","end_time"].indexOf(key) > -1){
+                    sjb[key] = dateformat(proto[key] * 1000, "yyyy-mm-dd HH:MM:ss");
+                } else{
+                    sjb[key] = proto[key]
+                }
+            })
+        }
+        respJobList.forEach(async element => {
+            let sinfo = {} as SlurmJobBrief
+            transformJobToBrief(sinfo, element)
+            typedJobList.push(sinfo)
+            let matchedTask = await getConnection().getRepository(StampTask).findOne({taskId: sinfo.job_id});
+            // let allUsers = await suRepo.find();
+            if(matchedTask){
+                let stateId = -1;
+                let matchedState =  await getConnection().getRepository(StampTaskStates).findOne({stateDescription: sinfo.job_state});
+                if(!matchedState) {
+                    let newState = new StampTaskStates()
+                    let currentMaxStateId = await getConnection().getRepository(StampTask).createQueryBuilder("st").select("MAX(st.state_id)", "max").getOne()
+                    if(!currentMaxStateId){
+                        newState.stateId = 0
+                    } else {
+                        newState.stateId = currentMaxStateId.stateId + 1
+                    }
+                    newState.stateDescription = sinfo.job_state
+                    await getConnection().getRepository(StampTaskStates).save(newState)
+                    stateId = newState.stateId
+                } else {
+                    stateId = matchedState.stateId
+                }
+                matchedTask.stateId = stateId
+                matchedTask.startTime = sinfo.start_time
+                matchedTask.finishTime = sinfo.end_time
+                await getConnection().getRepository(StampTask).save(matchedTask)
+            }
+        });
+        return typedJobList
+    }
 }

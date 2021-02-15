@@ -30,7 +30,7 @@ export class StampTask {
   })
   startTime: Date;
 
-  @Column("tinyint", { name: "state_id", default: () => "'0'" })
+  @Column("tinyint", { name: "state_id",nullable: true })
   stateId: number;
 
   @Column("datetime", { name: "finish_time", nullable: true })
