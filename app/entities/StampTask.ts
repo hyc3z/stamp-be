@@ -54,7 +54,7 @@ export class StampTask {
     onDelete: "RESTRICT",
     onUpdate: "RESTRICT",
   })
-  @JoinColumn([{ name: "user_id", referencedColumnName: "userId" }])
+  @JoinColumn([{ name: "userId", referencedColumnName: "userId" }])
   user: StampUser;
 
   @ManyToOne(

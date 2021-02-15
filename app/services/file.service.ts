@@ -46,6 +46,17 @@ export class FileService {
         
     }
 
+    static async getScriptFileDataAbsolute(path: string): Promise<any> {
+        try {
+            const content = fs.readFileSync(path, {encoding : 'utf-8'})
+            return content
+        } catch (error) {
+            console.log(error)
+            return ""
+        }
+        
+    }
+
     static async deleteScriptData(username:string, path: string): Promise<any> {
         const userpath = await this.getDir(username, "scripts", path)
         try {
@@ -150,6 +161,7 @@ export class FileService {
             children.forEach(async (obj) => {newchildren.push( await this.convertObjectToDevExtreme(obj))})
         }
         const newFile = {
+            id: file.path,
             name: file.name,
             isDirectory: file.type === "directory",
             size: file.size,

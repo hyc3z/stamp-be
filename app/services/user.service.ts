@@ -46,6 +46,16 @@ export class UserService {
     return allUsers.length > 0;
   }
 
+  static async getUid(_username: string): Promise<any>{
+    // https://github.com/typeorm/typeorm/blob/master/docs/find-options.md
+    let allUsers = await getConnection().getRepository(StampUser).find({where: {userName: _username}});
+    // let allUsers = await suRepo.find();
+    if(allUsers.length > 0){
+      return allUsers[0].userId
+    }
+    return -1
+  }
+
   static async delete(username: string, password: string): Promise<boolean>{
     const validated = await this.validate(username, password)
     if(validated){
