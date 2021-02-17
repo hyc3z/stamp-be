@@ -18,7 +18,7 @@ export class StampTask {
   @PrimaryGeneratedColumn({ type: "int", name: "taskId" })
   taskId: number;
 
-  @Column("int", { name: "userId" })
+  @Column("int", { name: "userId" ,nullable: true})
   userId: number;
 
   @Column("varchar", { name: "task_name", length: 32, default: () => "'0'" })

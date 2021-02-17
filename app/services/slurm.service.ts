@@ -54,7 +54,7 @@ export class SlurmService extends SlurmRequest{
         if(!scriptData){
             return new Error("ERROR: Read script failure.");
         }
-        const response = await this.httpPost("job/submit", {
+        let response = await this.httpPost("job/submit", {
             "job" : {
                 "account" : "root",
                 "name": taskname,
@@ -72,12 +72,15 @@ export class SlurmService extends SlurmRequest{
             let newJob = new StampTask(); 
             newJob.taskId = jobid;
             newJob.userId = await UserService.getUid(username);
+            newJob.taskName = taskname;
             newJob.resourceType = 0;
             newJob.resourceAmount = 0;
             if(newJob.userId < 0){
                 return new Error("ERROR: User not found.")
             }
             await getConnection().getRepository(StampTask).save(newJob);
+        } else {
+            response = slurmErrors
         }
         return response
     }
@@ -86,9 +89,24 @@ export class SlurmService extends SlurmRequest{
         return this.httpGet("nodes")
     }
     
-    static async getUnfinishedJobs(username?: string): Promise<any> {
+    static async getJobs(username?: string): Promise<any> {
         const response = await this.httpGet("jobs")
-        return this.parseJobInfo(response.jobs)
+        await this.parseJobInfo(response.jobs)
+        if(username) {
+            const uId = await UserService.getUid(username)
+            if(uId < 0){
+                return []
+            } else {
+                const userJobs = await getConnection().getRepository(StampTask)
+                .createQueryBuilder("st").leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id").where({userId: uId}).orderBy("st.taskId", "DESC").getMany()
+                return userJobs
+            }
+        } else {
+            const allJobs = await getConnection().getRepository(StampTask)
+            .createQueryBuilder("st").leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id").orderBy("st.taskId", "DESC").getMany()
+            // console.log("ALL JOBS:", allJobs)
+            return allJobs
+        }
     }
     
     static async parseJobInfo(respJobList: Array<SlurmJobInfo>): Promise<any> {
@@ -102,35 +120,45 @@ export class SlurmService extends SlurmRequest{
                 }
             })
         }
-        respJobList.forEach(async element => {
+        for( const element of respJobList) {
             let sinfo = {} as SlurmJobBrief
             transformJobToBrief(sinfo, element)
             typedJobList.push(sinfo)
             let matchedTask = await getConnection().getRepository(StampTask).findOne({taskId: sinfo.job_id});
             // let allUsers = await suRepo.find();
-            if(matchedTask){
-                let stateId = -1;
-                let matchedState =  await getConnection().getRepository(StampTaskStates).findOne({stateDescription: sinfo.job_state});
-                if(!matchedState) {
-                    let newState = new StampTaskStates()
-                    let currentMaxStateId = await getConnection().getRepository(StampTask).createQueryBuilder("st").select("MAX(st.state_id)", "max").getOne()
-                    if(!currentMaxStateId){
-                        newState.stateId = 0
-                    } else {
-                        newState.stateId = currentMaxStateId.stateId + 1
-                    }
-                    newState.stateDescription = sinfo.job_state
-                    await getConnection().getRepository(StampTaskStates).save(newState)
-                    stateId = newState.stateId
+            let stateId = -1;
+            let matchedState =  await getConnection().getRepository(StampTaskStates).findOne({stateDescription: sinfo.job_state});
+            if(!matchedState) {
+                let newState = new StampTaskStates()
+                let currentMaxStateId = await getConnection().getRepository(StampTaskStates).createQueryBuilder("st").select("MAX(st.state_id)", "max").getRawOne()
+                if(!currentMaxStateId){
+                    newState.stateId = 0
                 } else {
-                    stateId = matchedState.stateId
+                    newState.stateId = currentMaxStateId.max + 1
                 }
+                newState.stateDescription = sinfo.job_state
+                await getConnection().getRepository(StampTaskStates).save(newState)
+                stateId = newState.stateId
+            } else {
+                stateId = matchedState.stateId
+            }
+            if(matchedTask){
                 matchedTask.stateId = stateId
                 matchedTask.startTime = sinfo.start_time
                 matchedTask.finishTime = sinfo.end_time
-                await getConnection().getRepository(StampTask).save(matchedTask)
+            } else {
+                matchedTask = new StampTask()
+                matchedTask.taskName = sinfo.name
+                matchedTask.stateId = stateId
+                matchedTask.startTime = sinfo.start_time
+                matchedTask.finishTime = sinfo.end_time
+                matchedTask.taskId = sinfo.job_id
+                
             }
-        });
+            await getConnection().getRepository(StampTask).save(matchedTask)
+            // console.log("MTASK",matchedTask)
+            
+        };
         return typedJobList
     }
 }

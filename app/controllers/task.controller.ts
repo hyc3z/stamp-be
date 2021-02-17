@@ -11,7 +11,7 @@ export class TaskController {
   async getTasks(): Promise<any> {
     // TODO implement authorization
     // let loginSucess = await UserService.validate(username, password);
-    return SlurmService.getUnfinishedJobs();
+    return SlurmService.getJobs();
   }
   
   @Get('/create')

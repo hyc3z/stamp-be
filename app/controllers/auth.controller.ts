@@ -34,6 +34,8 @@ export class AuthController {
   //   return UserService.getUsers();
   // }
 
+  // Master Account with gid 0, uid 0
+
   @Get('/register')
   async register(@QueryParam("username") username: string, @QueryParam('password') password: string): Promise<any> {
       return UserService.register(username, password);
