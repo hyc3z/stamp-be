@@ -97,15 +97,24 @@ export class SlurmService extends SlurmRequest{
             if(uId < 0){
                 return []
             } else {
-                const userJobs = await getConnection().getRepository(StampTask)
-                .createQueryBuilder("st").leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id").where({userId: uId}).orderBy("st.taskId", "DESC").getMany()
-                return userJobs
+                const is_admin = await UserService.isAdmin(username)
+                if(!is_admin){
+                    const userJobs = await getConnection().getRepository(StampTask)
+                    .createQueryBuilder("st").leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id").where({userId: uId}).orderBy("st.taskId", "DESC").getMany()
+                    return userJobs
+                }else {
+                    const allJobs = await getConnection().getRepository(StampTask)
+                    .createQueryBuilder("st").leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id").orderBy("st.taskId", "DESC").getMany()
+                    // console.log("ALL JOBS:", allJobs)
+                    return allJobs
+                }
             }
         } else {
-            const allJobs = await getConnection().getRepository(StampTask)
-            .createQueryBuilder("st").leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id").orderBy("st.taskId", "DESC").getMany()
-            // console.log("ALL JOBS:", allJobs)
-            return allJobs
+            // const allJobs = await getConnection().getRepository(StampTask)
+            // .createQueryBuilder("st").leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id").orderBy("st.taskId", "DESC").getMany()
+            // // console.log("ALL JOBS:", allJobs)
+            // return allJobs
+            return []
         }
     }
     

@@ -15,7 +15,7 @@ export class StampGroup {
   @PrimaryGeneratedColumn({ type: "int", name: "gid" })
   gid: number;
 
-  @Column("varchar", { name: "gname", length: 20 })
+  @Column("varchar", { name: "gname", length: 20, nullable: true  })
   gname: string;
 
   @Column("int", { name: "gadmin", nullable: true })

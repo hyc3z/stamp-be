@@ -8,10 +8,19 @@ export class TaskController {
   constructor() {}
 
   @Get('/tasks')
-  async getTasks(): Promise<any> {
-    // TODO implement authorization
-    // let loginSucess = await UserService.validate(username, password);
-    return SlurmService.getJobs();
+  async getTasks(@HeaderParams() param:any,@Ctx() ctx:any): Promise<any> {
+    let user = await UserService.decodejwt(param)
+    if(user){
+      const filename = param["filename"]
+      const taskname = param["taskname"]
+      const submitResult = await SlurmService.getJobs(user);
+      // console.log(script)
+      ctx.status = submitResult ? 200 : 500
+      return ctx
+    } else{
+      ctx.status = 500
+      return ctx
+    }
   }
   
   @Get('/create')
