@@ -40,9 +40,9 @@ export class AuthController {
   async registerAdmin(@HeaderParams() param:any, @Ctx() ctx:any): Promise<any> {
     const username = param['stamp_admin_username']
     const password = param['stamp_admin_pwd']  
-    const response =  UserService.registerAdmin(username, password);
+    const response =  await UserService.registerAdmin(username, password);
     ctx.status = response ? 200 : 500
-    return ctx.status
+    return response
   }
 
   @Get('/registerUser')
@@ -61,9 +61,20 @@ export class AuthController {
   }
 
   // Dangerous: comment in production
+  // Todo: delete & reset group when deleting admin
   @Get('/delete')
-  async delete(@QueryParam("username") username: string, @QueryParam('password') password: string): Promise<any>{
-    return UserService.delete(username, password);
+  async delete(@HeaderParams() param:any,  @Ctx() ctx:any): Promise<any>{
+    const username = param['stamp_user_username']
+    const password = param['stamp_user_pwd']  
+    let user = await UserService.decodejwt(param)
+    if(user){
+        const response = await UserService.delete(username, password);
+        ctx.status = response ? 200 : 500
+        return ctx.status
+    } else{
+      ctx.status = 500
+      return ctx.status
+    }
   }
   
 }
