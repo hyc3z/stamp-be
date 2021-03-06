@@ -9,6 +9,7 @@ import { routingConfigs } from './routing.options'
 import { useMiddlewares } from './koa.middlewares'
 import { useKoaServer, useContainer } from 'routing-controllers'
 import decode from 'koa-jwt-decode'
+import { UserService, FileService } from 'app/services'
 if (useDatabase) {
   require('./connection')
 }
@@ -37,6 +38,22 @@ const createServer = async (): Promise<Koa> => {
   useContainer(Container)
   app.use(jwt({ secret: 'jwt-hyc' }).unless({ path: [/^\/user\/*/] }));
 
+  app.use(async function(ctx) {
+    if(ctx.path.startsWith('/file/download')){
+      let user = await UserService.decodejwt(ctx.header)
+      if(user){
+        let path = ctx.path.replace('/file/download', "")
+        const rs = await FileService.downloadFile(user, path)
+        ctx.set('Content-disposition', `attachment; filename=${path}`)
+        ctx.set('Content-type', 'application/octet-stream')
+        ctx.body = rs
+      } else{
+        ctx.status = 500
+        return ctx
+      }
+    
+    } 
+  })
   return app
 }
 

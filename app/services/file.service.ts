@@ -8,6 +8,20 @@ import directory_tree from 'directory-tree';
 @Service()
 export class FileService {
     
+    static async downloadFile(username: string, filename: string): Promise<any> {
+            
+        const userpath = await this.getDir(username, "scripts", filename)
+        // return fs.createReadStream(userpath, {
+        //     highWaterMark:4096, //文件一次读多少字节,默认 64*1024
+        //     flags:'r', //默认 'r'
+        //     autoClose:true, //默认读取完毕后自动关闭
+        //     start:0, //读取文件开始位置
+        //     end:4096, //流是闭合区间 包含start也含end
+        //     encoding:'utf8' //默认null
+        // })
+        const content = fs.readFileSync(userpath)
+        return content
+    }
     static async mkdir(username: string): Promise<boolean>{
         let result = true;
         fsConfig.subPaths.forEach(subPath => {
