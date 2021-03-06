@@ -21,20 +21,19 @@ export class AuthController {
   @Get('/validate')
   async validate(@HeaderParams() param:any): Promise<any> {
     try {
-    let loginSucess = await UserService.verifyjwt(param);
-    return "true"
+      let loginSucess = await UserService.verifyjwt(param);
+      return "true"
     } catch (error) {
       return "unauthorized"
     }
     
   }
-  // 
-  // @Get('/secret')
-  // async debug(): Promise<StampUser[]>{
-  //   return UserService.getUsers();
-  // }
-
-  // Master Account with gid 0, uid 0
+  @Get('/isAdmin')
+  async isAdmin(@HeaderParams() param:any, @Ctx() ctx:any): Promise<any> {
+    const username = param['stamp_admin_username']
+    const response =  await UserService.isAdmin(username);
+    return response
+  }
 
   @Get('/registerAdmin')
   async registerAdmin(@HeaderParams() param:any, @Ctx() ctx:any): Promise<any> {
