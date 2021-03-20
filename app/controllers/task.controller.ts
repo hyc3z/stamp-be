@@ -27,10 +27,18 @@ export class TaskController {
     if(user){
         const filename = param["filename"]
         const taskname = param["taskname"]
-        const submitResult = await SlurmService.submitjob(user, taskname, filename );
-        // console.log(script)
-        ctx.status = submitResult ? 200 : 500
-        return ctx
+        const type = param["resource-type"]
+        const amount = param["resource-amount"]
+
+        try {
+          const submitResult = await SlurmService.submitjob(user, taskname, filename, type, amount);
+          console.log(submitResult)
+          ctx.status = submitResult ? 200 : 500
+          return ctx
+        } catch (error) {
+          ctx.status = 500
+          return ctx
+        }
     } else{
       ctx.status = 500
       return ctx

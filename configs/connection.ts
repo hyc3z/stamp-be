@@ -19,4 +19,9 @@ let connection : Connection;
   bootstrap.connected()
 })().catch(error => console.log(error))
 
+function initDatabase(connection: Connection) {
+  print.log('Checking database status...')
+  connection.query("select * from ")
+}
+
 export default connection;

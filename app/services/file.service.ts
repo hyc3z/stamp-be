@@ -52,6 +52,7 @@ export class FileService {
         const userpath = await this.getDir(username, "scripts", path)
         try {
             const content = fs.readFileSync(userpath, {encoding : 'utf-8'})
+            console.log("Get script data.")
             return content
         } catch (error) {
             console.log(error)

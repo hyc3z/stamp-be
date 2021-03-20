@@ -6,7 +6,7 @@ import slurmcfg from '../../configs/slurm.config'
 import dateformat from 'dateformat'
 import { Method } from 'routing-controllers';
 import { FileService } from './file.service';
-import { StampTask, StampTaskStates } from 'app/entities';
+import { StampResourceTypes, StampTask, StampTaskStates } from 'app/entities';
 import { UserService } from './user.service';
 import { SlurmJobBrief, SlurmJobBriefKeys, SlurmJobInfo } from '../meta/SlurmJobMeta'
 import { keys } from 'ts-transformer-keys'
@@ -49,10 +49,10 @@ class SlurmRequest{
 @Service()
 export class SlurmService extends SlurmRequest{
     
-    static async submitjob(username: string, taskname: string, scriptPath: string): Promise<any>{
+    static async submitjob(username: string, taskname: string, scriptPath: string, resourceType: string, resourceAmount: number): Promise<any>{
         const scriptData = await FileService.getScriptFileData(username, scriptPath)
         if(!scriptData){
-            return new Error("ERROR: Read script failure.");
+            throw Error("ERROR: Read script failure.");
         }
         let response = await this.httpPost("job/submit", {
             "job" : {
@@ -62,10 +62,13 @@ export class SlurmService extends SlurmRequest{
                     "PATH" : "/bin:/usr/bin:/usr/local/bin",
                     "LD_LIBRARY_PATH" : "/lib/:/lib64/:/usr/local/lib"
                 },
-                "current_working_directory" : `/mnt/slurm/${username}/output`
+                "current_working_directory" : `/mnt/slurm/${username}/output`,
+                "cpus_per_task": resourceAmount
+
             },
             "script" : scriptData
         })
+        console.log(response)
         const slurmErrors = response["errors"]
         if(slurmErrors instanceof Array && slurmErrors.length === 0){
             const jobid = response["job_id"]
@@ -73,8 +76,8 @@ export class SlurmService extends SlurmRequest{
             newJob.taskId = jobid;
             newJob.userId = await UserService.getUid(username);
             newJob.taskName = taskname;
-            newJob.resourceType = 0;
-            newJob.resourceAmount = 0;
+            newJob.resourceType = await this.createAndGetResourceId(resourceType);
+            newJob.resourceAmount = resourceAmount;
             if(newJob.userId < 0){
                 return new Error("ERROR: User not found.")
             }
@@ -89,9 +92,27 @@ export class SlurmService extends SlurmRequest{
         return this.httpGet("nodes")
     }
     
+    static async createAndGetResourceId(resourceName: string): Promise<number> {
+        const processedResourceName = resourceName.toLowerCase().trim()
+        const rId = await getConnection().getRepository(StampResourceTypes).find({where: {typeDescription: processedResourceName}});
+        if(rId.length == 0) {
+            let newType = new StampResourceTypes()
+            const maxId  = await getConnection().getRepository(StampResourceTypes).createQueryBuilder("st").select("MAX(st.type_id)", "max").getRawOne()
+            if(!maxId){
+                newType.typeId = 0
+            } else {
+                newType.typeId = maxId.max + 1
+            }
+            newType.typeDescription = processedResourceName
+            await getConnection().getRepository(StampResourceTypes).save(newType)
+            return newType.typeId
+        } else {
+            return rId[0].typeId
+        }
+    }
     static async getJobs(username?: string): Promise<any> {
         const response = await this.httpGet("jobs")
-        await this.parseJobInfo(response.jobs)
+        const parsedJobs = await this.parseJobInfo(response.jobs)
         if(username) {
             const uId = await UserService.getUid(username)
             if(uId < 0){
@@ -100,11 +121,18 @@ export class SlurmService extends SlurmRequest{
                 const is_admin = await UserService.isAdmin(username)
                 if(!is_admin){
                     const userJobs = await getConnection().getRepository(StampTask)
-                    .createQueryBuilder("st").leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id").where({userId: uId}).orderBy("st.taskId", "DESC").getMany()
+                    .createQueryBuilder("st")
+                    .leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id")
+                    .leftJoinAndMapOne("st.resource", "stamp_resource_types", "stt", "stt.type_id=st.resource_type")
+                    .where({userId: uId})
+                    .orderBy("st.taskId", "DESC").getMany()
                     return userJobs
                 }else {
                     const allJobs = await getConnection().getRepository(StampTask)
-                    .createQueryBuilder("st").leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id").orderBy("st.taskId", "DESC").getMany()
+                    .createQueryBuilder("st")
+                    .leftJoinAndMapOne("st.state", "stamp_task_states", "sts", "sts.state_id=st.state_id")
+                    .leftJoinAndMapOne("st.resource", "stamp_resource_types", "stt", "stt.type_id=st.resource_type")
+                    .orderBy("st.taskId", "DESC").getMany()
                     // console.log("ALL JOBS:", allJobs)
                     return allJobs
                 }
@@ -162,10 +190,14 @@ export class SlurmService extends SlurmRequest{
                 matchedTask.startTime = sinfo.start_time
                 matchedTask.finishTime = sinfo.end_time
                 matchedTask.taskId = sinfo.job_id
-                
+                matchedTask.resourceType = await this.createAndGetResourceId('CPU')
+                matchedTask.resourceAmount = sinfo.cpus
             }
-            await getConnection().getRepository(StampTask).save(matchedTask)
-            // console.log("MTASK",matchedTask)
+            try {
+                await getConnection().getRepository(StampTask).save(matchedTask)
+            } catch (error) {
+                console.log(error)
+            }
             
         };
         return typedJobList
