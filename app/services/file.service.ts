@@ -10,7 +10,7 @@ export class FileService {
     
     static async downloadFile(username: string, filename: string): Promise<any> {
             
-        const userpath = await this.getDir(username, "scripts", filename)
+        const userpath = await this.getDir(username, "output", filename)
         // return fs.createReadStream(userpath, {
         //     highWaterMark:4096, //文件一次读多少字节,默认 64*1024
         //     flags:'r', //默认 'r'
