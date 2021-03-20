@@ -117,6 +117,13 @@ export class FileService {
         return result
     }
 
+    static async getResultfilesDevExtreme(username: any): Promise<any> {
+        const userpath = await this.getDir(username, "output")
+        const dt = directory_tree(userpath)
+        const result = this.convertObjectToDevExtreme(dt)
+        return result
+    }
+
     static async getProgramfilesChonky(username: any): Promise<any> {
         const userpath = await this.getDir(username, "program")
         const result = directory_tree(userpath)

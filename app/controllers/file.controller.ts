@@ -107,6 +107,20 @@ export class FileController {
     }
   }
   
+  @Get('/result')
+  async getResultfiles(@HeaderParams() param:any, @Ctx() ctx:any): Promise<any> {
+    let user = await UserService.decodejwt(param)
+    if(user){
+        // const response = await FileService.getScriptfilesChonky(user);
+        const response = await FileService.getResultfilesDevExtreme(user);
+        return response["items"]
+
+    } else{
+      ctx.status = 500
+      return ctx
+    }
+  }
+
   @Get('/getScript')
   async getScriptdata(@HeaderParams() param:any, @QueryParam('path') path: string, @Ctx() ctx:any): Promise<any> {
     let user = await UserService.decodejwt(param)

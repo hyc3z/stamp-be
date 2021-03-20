@@ -11,12 +11,10 @@ export class TaskController {
   async getTasks(@HeaderParams() param:any,@Ctx() ctx:any): Promise<any> {
     let user = await UserService.decodejwt(param)
     if(user){
-      const filename = param["filename"]
-      const taskname = param["taskname"]
       const submitResult = await SlurmService.getJobs(user);
       // console.log(script)
       ctx.status = submitResult ? 200 : 500
-      return ctx
+      return submitResult
     } else{
       ctx.status = 500
       return ctx

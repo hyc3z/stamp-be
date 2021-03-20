@@ -12,7 +12,7 @@ module.exports = {
   port: '3306',
   username: 'root',
   password: 'p/q2-q4!',
-  database: 'stamp-hyc',
+  database: 'stamp_hyc',
   entities: [
     "/app/entities/*.ts"
   ],
