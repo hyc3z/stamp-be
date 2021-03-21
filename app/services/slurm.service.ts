@@ -31,6 +31,16 @@ class SlurmRequest{
         return response.data
     }
     
+    static async httpDelete(apiSubpath:string, params?: Object):Promise<any> {
+        const response = await axios({
+            method: 'DELETE',
+            responseType: 'json',
+            url: `http://${slurmcfg.host}:${slurmcfg.port}/slurm/${slurmcfg.api_version}/${apiSubpath}`, 
+            headers: headerss
+        })
+            return response.data
+        }
+
     static async httpPost(apiSubpath:string, postdata?: any, params?: Object):Promise<any> {
         const response = await axios({
             method: 'POST',
@@ -49,24 +59,29 @@ class SlurmRequest{
 @Service()
 export class SlurmService extends SlurmRequest{
     
-    static async submitjob(username: string, taskname: string, scriptPath: string, resourceType: string, resourceAmount: number): Promise<any>{
+    static async submitjob(username: string, taskname: string, scriptPath: string, resourceType: string, resourceAmount: number, taskNumber: number): Promise<any>{
         const scriptData = await FileService.getScriptFileData(username, scriptPath)
         if(!scriptData){
             throw Error("ERROR: Read script failure.");
         }
+        console.log(resourceAmount)
         let response = await this.httpPost("job/submit", {
             "job" : {
                 "account" : "root",
                 "name": taskname,
                 "environment" : {
                     "PATH" : "/bin:/usr/bin:/usr/local/bin",
-                    "LD_LIBRARY_PATH" : "/lib/:/lib64/:/usr/local/lib"
+                    "LD_LIBRARY_PATH" : "/lib/:/lib64/:/usr/local/lib:/usr/lib64/mpich/lib",
+                    "OMPI_ALLOW_RUN_AS_ROOT": "1",
+                    "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM": "1"
                 },
                 "current_working_directory" : `/mnt/slurm/${username}/output`,
-                "cpus_per_task": resourceAmount
-
+                "cpus_per_task": resourceAmount,
+                "tasks": taskNumber
             },
             "script" : scriptData
+        }).catch(err=> {
+            console.log(err)
         })
         console.log(response)
         const slurmErrors = response["errors"]
@@ -77,7 +92,7 @@ export class SlurmService extends SlurmRequest{
             newJob.userId = await UserService.getUid(username);
             newJob.taskName = taskname;
             newJob.resourceType = await this.createAndGetResourceId(resourceType);
-            newJob.resourceAmount = resourceAmount;
+            newJob.resourceAmount = resourceAmount * taskNumber;
             if(newJob.userId < 0){
                 return new Error("ERROR: User not found.")
             }
@@ -110,6 +125,32 @@ export class SlurmService extends SlurmRequest{
             return rId[0].typeId
         }
     }
+
+    static async deleteJob(username: string, taskId: number): Promise<any> {
+        try {
+            const isAdmin = await UserService.isAdmin(username)
+            const userId = await UserService.getUid(username)
+            const userHasJob = await getConnection().getRepository(StampTask).findOne({taskId: taskId, userId: userId})
+            if( userHasJob || isAdmin) {
+                await this.httpDelete(`job/${taskId}`)
+            }
+        } catch (error) {
+            const jobInfo = await this.httpGet(`job/${taskId}`).catch(error => {
+                const errors = error?.response?.data?.errors
+                if(errors) {
+                    errors.forEach(async element => {
+                        const error = element.error
+                        if(error && error.startsWith("_handle_job_get: unknown job")){
+                            console.log(error)
+                            await getConnection().getRepository(StampTask).delete({taskId: taskId});
+                        }
+                    });
+                }
+            })
+           
+        }
+    }
+
     static async getJobs(username?: string): Promise<any> {
         const response = await this.httpGet("jobs")
         const parsedJobs = await this.parseJobInfo(response.jobs)

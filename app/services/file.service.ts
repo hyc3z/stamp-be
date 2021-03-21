@@ -38,6 +38,7 @@ export class FileService {
         let result = true;
         const userpath = await this.getDir(username, subpath, file.originalname)
         fs.writeFile(userpath, file.buffer, (err) => { if(err) { console.log(err);result = false}})
+        fs.chmodSync(userpath, "0770")
         return result 
     }
 

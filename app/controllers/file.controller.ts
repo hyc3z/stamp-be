@@ -113,8 +113,9 @@ export class FileController {
     if(user){
         // const response = await FileService.getScriptfilesChonky(user);
         const response = await FileService.getResultfilesDevExtreme(user);
-        return response["items"]
-
+        return response["items"].sort((a:any, b:any) => {
+          return b.name.localeCompare(a.name)
+        })
     } else{
       ctx.status = 500
       return ctx
