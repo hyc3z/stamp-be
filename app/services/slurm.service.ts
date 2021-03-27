@@ -64,7 +64,6 @@ export class SlurmService extends SlurmRequest{
         if(!scriptData){
             throw Error("ERROR: Read script failure.");
         }
-        console.log(resourceAmount)
         let response = await this.httpPost("job/submit", {
             "job" : {
                 "account" : "root",
@@ -83,7 +82,6 @@ export class SlurmService extends SlurmRequest{
         }).catch(err=> {
             console.log(err)
         })
-        console.log(response)
         const slurmErrors = response["errors"]
         if(slurmErrors instanceof Array && slurmErrors.length === 0){
             const jobid = response["job_id"]

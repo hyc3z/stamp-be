@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { StampGroup } from "./StampGroup";
 import { StampTask } from "./StampTask";
+import { StampUserEnv } from "./StampUserEnv";
 
 @Index("stamp_user_stamp_group_gid_fk", ["gid"], {})
 @Entity("stamp_user", { schema: "stamp-hyc" })
@@ -49,6 +50,9 @@ export class StampUser {
 
   @OneToMany(() => StampTask, (stampTask) => stampTask.user)
   stampTasks: StampTask[];
+
+  @OneToMany(() => StampUserEnv, (stampUserEnv) => stampUserEnv.user)
+  stampUserEnvs: StampUserEnv[];
 
   @ManyToOne(() => StampGroup, (stampGroup) => stampGroup.stampUsers, {
     onDelete: "SET NULL",
