@@ -1,5 +1,5 @@
 import { Service } from 'typedi'
-import {StampGroup, StampUser} from "../entities";
+import {StampGroup, StampUser, StampUserEnv} from "../entities";
 import { getConnection, Connection } from 'typeorm';
 import dateformat from 'dateformat'
 import { EncriptService } from './encript.service';
@@ -34,6 +34,52 @@ export class UserService {
       //exp in seconds
     }, "jwt-hyc")
   }
+
+  static async getEnv(username: string): Promise<any> {
+    const uId = await UserService.getUid(username)
+    const userEnvConnection = await getConnection().getRepository(StampUserEnv)
+    const allEnvs = await userEnvConnection.find({where: {userId: uId}})
+    return allEnvs
+  }
+
+  static async deleteEnv(username: string, envId: number | string): Promise<any> {
+    const userEnvConnection = await getConnection().getRepository(StampUserEnv)
+    const uid = await UserService.getUid(username)
+    if(uid < 0){
+      return false
+    }
+    const existingEnv = await userEnvConnection.find({where: {envId: envId, userId: uid}})
+    if(existingEnv.length > 0){
+      await userEnvConnection.delete(existingEnv[0])
+      return true
+    } else {
+      console.log("No env found.", envId, uid)
+    }
+    return false
+  }
+
+  static async storeEnv(username: string, envKey: string, envVal: string, envId: number | string) {
+    const userEnvConnection = await getConnection().getRepository(StampUserEnv)
+    const uid = await UserService.getUid(username)
+    if(uid < 0){
+      return false
+    }
+    const existingEnv = await userEnvConnection.find({where: {envId: envId, userId: uid}})
+    if(existingEnv.length > 0){
+      const editingEnv = existingEnv[0]
+      editingEnv.envKey = envKey
+      editingEnv.envVal = envVal
+      await userEnvConnection.save(editingEnv)
+    } else {
+      const newEnv = new StampUserEnv()
+      newEnv.envKey = envKey
+      newEnv.envVal = envVal
+      newEnv.userId = uid
+      await userEnvConnection.save(newEnv)
+    }
+    return true
+  }
+
   static async validate(username: string, password: string): Promise<boolean>{
     let allUsers = await getConnection().getRepository(StampUser).find({where: {userName: username, userPwd: await EncriptService.hashed(password)}});
     // let allUsers = await suRepo.find();
