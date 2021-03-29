@@ -9,7 +9,8 @@ import { FileService } from './file.service';
 import { StampResourceTypes, StampTask, StampTaskStates } from 'app/entities';
 import { UserService } from './user.service';
 import { SlurmJobBrief, SlurmJobBriefKeys, SlurmJobInfo } from '../meta/SlurmJobMeta'
-import { keys } from 'ts-transformer-keys'
+import { keys } from 'ts-transformer-keys';
+import { environment } from '../const/common';
 
 const headerss = {
     'X-SLURM-USER-NAME': slurmcfg.jwt_user,
@@ -64,16 +65,12 @@ export class SlurmService extends SlurmRequest{
         if(!scriptData){
             throw Error("ERROR: Read script failure.");
         }
+        const userEnvs = await UserService.getEnv(username)
         let response = await this.httpPost("job/submit", {
             "job" : {
                 "account" : "root",
                 "name": taskname,
-                "environment" : {
-                    "PATH" : "/bin:/usr/bin:/usr/local/bin",
-                    "LD_LIBRARY_PATH" : "/lib/:/lib64/:/usr/local/lib:/usr/lib64/mpich/lib",
-                    "OMPI_ALLOW_RUN_AS_ROOT": "1",
-                    "OMPI_ALLOW_RUN_AS_ROOT_CONFIRM": "1"
-                },
+                "environment" : concateEnvs(userEnvs, environment),
                 "current_working_directory" : `/mnt/slurm/${username}/output`,
                 "cpus_per_task": resourceAmount,
                 "tasks": taskNumber
