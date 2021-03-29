@@ -11,7 +11,7 @@ import { UserService } from './user.service';
 import { SlurmJobBrief, SlurmJobBriefKeys, SlurmJobInfo } from '../meta/SlurmJobMeta'
 import { keys } from 'ts-transformer-keys';
 import { environment } from '../const/common';
-
+import { concateEnvs } from '../helpers/common';
 const headerss = {
     'X-SLURM-USER-NAME': slurmcfg.jwt_user,
     'X-SLURM-USER-TOKEN': slurmcfg.jwt_token,

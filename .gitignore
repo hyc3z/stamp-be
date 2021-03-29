@@ -201,3 +201,4 @@ gen
 
 # typeorm generater config
 .tomg-config
+ormconfig.js
