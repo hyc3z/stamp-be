@@ -7,9 +7,16 @@ export class ClusterController {
   constructor() {}
 
   @Get('/nodes')
-  async getTasks(): Promise<any> {
+  async getNodes(): Promise<any> {
     // TODO implement tasks
     // let loginSucess = await UserService.validate(username, password);
     return SlurmService.getNodes();
+  }
+
+  @Get('/partitions')
+  async getPartitions(): Promise<any> {
+    
+    const par = await SlurmService.getPartitions();
+    return par;
   }
 }

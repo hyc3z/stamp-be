@@ -19,3 +19,9 @@ slurm token 创建，修改好相应slurm.config.ts
 `sudo scontrol token username=root lifespan=315360000`
 root权限运行后端
 创建管理员账户 用postman 或者requests
+
+TODO:
+Task 不能删除 计费
+监控
+Task create partition
+scheduling

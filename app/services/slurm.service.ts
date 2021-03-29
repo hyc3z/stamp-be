@@ -102,6 +102,11 @@ export class SlurmService extends SlurmRequest{
         return this.httpGet("nodes")
     }
     
+    static async getPartitions(): Promise<any> {
+        const res = await this.httpGet("partitions")
+        return res["partitions"] || []
+    }
+
     static async createAndGetResourceId(resourceName: string): Promise<number> {
         const processedResourceName = resourceName.toLowerCase().trim()
         const rId = await getConnection().getRepository(StampResourceTypes).find({where: {typeDescription: processedResourceName}});
