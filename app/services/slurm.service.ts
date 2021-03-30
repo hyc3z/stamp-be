@@ -127,28 +127,31 @@ export class SlurmService extends SlurmRequest{
     }
 
     static async deleteJob(username: string, taskId: number): Promise<any> {
-        try {
             const isAdmin = await UserService.isAdmin(username)
             const userId = await UserService.getUid(username)
             const userHasJob = await getConnection().getRepository(StampTask).findOne({taskId: taskId, userId: userId})
             if( userHasJob || isAdmin) {
-                await this.httpDelete(`job/${taskId}`)
-            }
-        } catch (error) {
-            const jobInfo = await this.httpGet(`job/${taskId}`).catch(error => {
-                const errors = error?.response?.data?.errors
-                if(errors) {
-                    errors.forEach(async element => {
-                        const error = element.error
-                        if(error && error.startsWith("_handle_job_get: unknown job")){
-                            console.log(error)
-                            await getConnection().getRepository(StampTask).delete({taskId: taskId});
-                        }
-                    });
+                try {
+                    await this.httpDelete(`job/${taskId}`)
                 }
-            })
-           
-        }
+                catch (error) {
+                    const jobInfo = await this.httpGet(`job/${taskId}`).catch(error => {
+                        const errors = error?.response?.data?.errors
+                        if(errors) {
+                            errors.forEach(async element => {
+                                const error = element.error
+                                if(error && error.startsWith("_handle_job_get: unknown job")){
+                                    console.log(error)
+                                    // We need to tax users, so do not purge from db.
+                                    // await getConnection().getRepository(StampTask).delete({taskId: taskId});
+                                }
+                            });
+                        }
+                    })
+                }
+            } else {
+                return false
+            }  
     }
 
     static async getJobs(username?: string): Promise<any> {
