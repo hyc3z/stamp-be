@@ -13,9 +13,7 @@ module.exports = {
   username: 'root',
   password: 'p/q2-q4!',
   database: 'stamp_hyc',
-  entities: [
-    "/app/entities/*.ts"
-  ],
+  entities: ['/app/entities/*.ts'],
   useNewUrlParser: true,
   useUnifiedTopology: true,
   synchronize: true,

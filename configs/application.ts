@@ -15,44 +15,43 @@ if (useDatabase) {
 }
 
 const CONFIG = {
-  key: 'koa:sess', /** (string) cookie key (default is koa:sess) */
+  key: 'koa:sess' /** (string) cookie key (default is koa:sess) */,
   /** (number || 'session') maxAge in ms (default is 1 days) */
   /** 'session' will result in a cookie that expires when session/browser is closed */
   /** Warning: If a session cookie is stolen, this cookie will never expire */
   maxAge: 86400000,
-  overwrite: true, /** (boolean) can overwrite or not (default true) */
-  httpOnly: true, /** (boolean) httpOnly or not (default true) */
-  signed: true, /** (boolean) signed or not (default true) */
-  rolling: false, /** (boolean) Force a session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown. (default is false) */
-  renew: false, /** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false)*/
-};
+  overwrite: true /** (boolean) can overwrite or not (default true) */,
+  httpOnly: true /** (boolean) httpOnly or not (default true) */,
+  signed: true /** (boolean) signed or not (default true) */,
+  rolling: false /** (boolean) Force a session identifier cookie to be set on every response. The expiration is reset to the original maxAge, resetting the expiration countdown. (default is false) */,
+  renew: false /** (boolean) renew session when session is nearly expired, so we can always keep user logged in. (default is false)*/,
+}
 
 const createServer = async (): Promise<Koa> => {
   const koa: Koa = new Koa()
-  
+
   useMiddlewares(koa)
 
   const app: Koa = useKoaServer<Koa>(koa, routingConfigs)
-  app.use(cors());
+  app.use(cors())
 
   useContainer(Container)
-  app.use(jwt({ secret: 'jwt-hyc' }).unless({ path: [/^\/user\/*/] }));
+  app.use(jwt({ secret: 'jwt-hyc' }).unless({ path: [/^\/user\/*/] }))
 
-  app.use(async function(ctx) {
-    if(ctx.path.startsWith('/file/download')){
+  app.use(async function (ctx) {
+    if (ctx.path.startsWith('/file/download')) {
       let user = await UserService.decodejwt(ctx.header)
-      if(user){
-        let path = ctx.path.replace('/file/download', "")
+      if (user) {
+        let path = ctx.path.replace('/file/download', '')
         const rs = await FileService.downloadFile(user, path)
         ctx.set('Content-disposition', `attachment; filename=${path}`)
         ctx.set('Content-type', 'application/octet-stream')
         ctx.body = rs
-      } else{
+      } else {
         ctx.status = 500
         return ctx
       }
-    
-    } 
+    }
   })
   return app
 }

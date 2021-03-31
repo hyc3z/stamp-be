@@ -10,8 +10,7 @@ import { Ctx } from 'routing-controllers'
 export const useMiddlewares = <T extends Koa>(app: T): T => {
   Environment.identity !== 'test' && app.use(logger())
 
-  app.use(bodyParser({enableTypes: ['json', 'form', 'text']}))
+  app.use(bodyParser({ enableTypes: ['json', 'form', 'text'] }))
 
   return app
-    
 }

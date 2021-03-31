@@ -1,4 +1,3 @@
-
 export * from './StampComputeResources'
 export * from './StampNodeInfo'
 export * from './StampNodeRoles'
