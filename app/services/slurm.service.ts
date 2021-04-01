@@ -181,10 +181,10 @@ export class SlurmService extends SlurmRequest {
       try {
         await this.httpDelete(`job/${taskId}`)
       } catch (error) {
-        const jobInfo = await this.httpGet(`job/${taskId}`).catch(error => {
+        const jobInfo = await this.httpGet(`job/${taskId}`).catch(async error => {
           const errors = error?.response?.data?.errors
           if (errors) {
-            errors.forEach(async element => {
+            await Promise.all(errors.map(async element => {
               const error = element.error
               if (error && error.startsWith('_handle_job_get: unknown job')) {
                 console.log(error)
@@ -194,7 +194,7 @@ export class SlurmService extends SlurmRequest {
                 userHasJob.state = state
                 await getConnection().getRepository(StampTask).save(userHasJob)
               }
-            })
+            }))
           }
         })
       }
@@ -254,7 +254,7 @@ export class SlurmService extends SlurmRequest {
           // console.log("ALL JOBS:", allJobs)
           jobs = allJobs
         }
-        jobs.forEach(async (job: StampTask) => {
+        await Promise.all(jobs.map(async (job: StampTask) => {
           if (!parsedJobs.includes(job.taskId)) {
             const state = await this.getStateIdCreateIfNotExist(STATE_WHEN_NOT_EXIST)
             // We need to tax users, so do not purge from db.
@@ -263,7 +263,7 @@ export class SlurmService extends SlurmRequest {
             console.log(job)
             await getConnection().getRepository(StampTask).save(job)
           }
-        })
+        }))
         return jobs
       }
     } else {

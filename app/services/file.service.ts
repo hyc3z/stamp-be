@@ -210,9 +210,9 @@ export class FileService {
     const children = file.children
     const newchildren = []
     if (children) {
-      children.forEach(async obj => {
+      await Promise.all(children.map(async obj => {
         newchildren.push(await this.convertObjectToDevExtreme(obj))
-      })
+      }))
     }
     const newFile = {
       id: file.path,

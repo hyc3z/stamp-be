@@ -8,7 +8,7 @@ import Environment from 'configs/environments'
 
 module.exports = {
   type: 'mariadb',
-  host: 'localhost',
+  host: '0.0.0.0',
   port: '3306',
   username: 'root',
   password: 'p/q2-q4!',
