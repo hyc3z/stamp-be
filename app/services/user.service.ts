@@ -139,7 +139,7 @@ export class UserService {
     newUser.userName = username
     newUser.userPwd = await EncriptService.hashed(password)
     // https://www.npmjs.com/package/dateformat
-    newUser.createTime = dateformat(new Date(), 'yyyy-mm-dd HH:MM:ss')
+    newUser.createTime = new Date()
     await getConnection().getRepository(StampUser).save(newUser)
     await FileService.mkdir(username)
     let newGroup = new StampGroup()
@@ -179,7 +179,7 @@ export class UserService {
     newUser.userName = username
     newUser.userPwd = await EncriptService.hashed(password)
     // https://www.npmjs.com/package/dateformat
-    newUser.createTime = dateformat(new Date(), 'yyyy-mm-dd HH:MM:ss')
+    newUser.createTime = new Date()
     await getConnection().getRepository(StampUser).save(newUser)
     await FileService.mkdir(username)
     if (groupadmin) {

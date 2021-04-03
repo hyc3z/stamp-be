@@ -279,7 +279,7 @@ export class SlurmService extends SlurmRequest {
     const typedJobList = [] as Array<any>
     const transformJobToBrief = (sjb: SlurmJobBrief, proto: SlurmJobInfo) => {
       SlurmJobBriefKeys.forEach(key => {
-        if (['start_time', 'end_time'].indexOf(key) > -1) {
+        if (['start_time', 'end_time'].includes(key)) {
           sjb[key] = dateformat(proto[key] * 1000, 'yyyy-mm-dd HH:MM:ss')
         } else {
           sjb[key] = proto[key]
