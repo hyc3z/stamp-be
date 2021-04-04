@@ -1,3 +1,4 @@
+import { UserService, MetricsService } from 'app/services'
 import {
   Get,
   JsonController,
@@ -12,5 +13,20 @@ export class MetricsController {
   @Get('/cluster')
   async clusterMetrics(@HeaderParams() param: any): Promise<any> {
     return undefined
+  }
+
+  @Get('/tax')
+  async getTax(@HeaderParams() param: any, @Ctx() ctx: any): Promise<any> {
+    const startDate = param["stamp_report_start_date"]
+    const endDate = param["stamp_report_end_date"]
+    let user = await UserService.decodejwt(param)
+    if (user && UserService.isAdmin(user)) {
+      const taxes = await MetricsService.getTaxes(startDate, endDate)
+      ctx.status = taxes ? 200 : 500
+      return taxes
+    } else {
+      ctx.status = 500
+      return ctx.status
+    }
   }
 }

@@ -122,6 +122,18 @@ export class UserService {
     return -1
   }
 
+  static async getUserName(_uid: number): Promise<any> {
+    // https://github.com/typeorm/typeorm/blob/master/docs/find-options.md
+    let allUsers = await getConnection()
+      .getRepository(StampUser)
+      .find({ where: { userId: _uid } })
+    // let allUsers = await suRepo.find();
+    if (allUsers.length > 0) {
+      return allUsers[0].userName
+    }
+    return -1
+  }
+
   static async delete(username: string, password: string): Promise<boolean> {
     const validated = await this.validate(username, password)
     if (validated) {
