@@ -111,7 +111,8 @@ export class SlurmService extends SlurmRequest {
   }
 
   static async getNodes(): Promise<any> {
-    return this.httpGet('nodes')
+    const res = await this.httpGet('nodes')
+    return res['nodes'] || []
   }
 
   static async getPartitions(): Promise<any> {

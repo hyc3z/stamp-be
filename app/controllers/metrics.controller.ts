@@ -1,4 +1,4 @@
-import { UserService, MetricsService } from 'app/services'
+import { UserService, MetricsService, SlurmService } from 'app/services'
 import {
   Get,
   JsonController,
@@ -12,7 +12,11 @@ import {
 export class MetricsController {
   @Get('/cluster')
   async clusterMetrics(@HeaderParams() param: any): Promise<any> {
-    return undefined
+    const cpuUsageMetrics = await SlurmService.getNodes();
+    const metrics =  {
+      cpuUsage: cpuUsageMetrics
+    }
+    return metrics
   }
 
   @Get('/tax')
