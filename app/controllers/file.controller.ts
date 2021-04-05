@@ -142,11 +142,16 @@ export class FileController {
     if (user) {
       // const response = await FileService.getScriptfilesChonky(user);
       const response = await FileService.getResultfilesDevExtreme(user)
-      return response['items'].sort((a: any, b: any) => {
-        const idA = parseInt(a.match(/^slurm-(\d+).out/i)[1]);
-        const idB = parseInt(b.match(/^slurm-(\d+).out/i)[1]);
-        return idA < idB
-      })
+      try {
+        const sorted = response['items'].sort((a: any, b: any) => {
+          const idA = parseInt(a.name.match(/^slurm-(\d+).out/i)[1]);
+          const idB = parseInt(b.name.match(/^slurm-(\d+).out/i)[1]);
+          return idA < idB ? 1 : -1
+        })
+        return sorted
+      } catch (error) {
+        console.log(error)
+      }
     } else {
       ctx.status = 500
       return ctx
