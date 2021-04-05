@@ -7,7 +7,7 @@ import path from 'path'
 import directory_tree from 'directory-tree'
 @Service()
 export class FileService {
-  static async downloadFile(username: string, filename: string): Promise<any> {
+  static async downloadOutput(username: string, filename: string): Promise<any> {
     const userpath = await this.getDir(username, 'output', filename)
     // return fs.createReadStream(userpath, {
     //     highWaterMark:4096, //文件一次读多少字节,默认 64*1024
@@ -20,6 +20,13 @@ export class FileService {
     const content = fs.readFileSync(userpath)
     return content
   }
+
+  static async downloadScript(username: string, filename: string): Promise<any> {
+    const userpath = await this.getDir(username, 'scripts', filename)
+    const content = fs.readFileSync(userpath)
+    return content
+  }
+
   static async mkdir(username: string): Promise<boolean> {
     let result = true
     fsConfig.subPaths.forEach(subPath => {

@@ -11,6 +11,7 @@ import {
 } from 'routing-controllers'
 import { SlurmService } from '../services/slurm.service'
 import jsonwebtoken from 'jsonwebtoken'
+import { mock_node } from 'app/mock/nodes'
 @JsonController('/cluster')
 export class ClusterController {
   constructor() {}
@@ -19,7 +20,8 @@ export class ClusterController {
   async getNodes(): Promise<any> {
     // TODO implement tasks
     // let loginSucess = await UserService.validate(username, password);
-    return SlurmService.getNodes()
+    return mock_node
+    // return SlurmService.getNodes()
   }
 
   @Get('/partitions')

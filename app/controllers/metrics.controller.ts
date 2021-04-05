@@ -1,3 +1,4 @@
+import { mock_node } from 'app/mock/nodes';
 import { UserService, MetricsService, SlurmService } from 'app/services'
 import {
   Get,

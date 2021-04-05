@@ -39,11 +39,23 @@ const createServer = async (): Promise<Koa> => {
   app.use(jwt({ secret: 'jwt-hyc' }).unless({ path: [/^\/user\/*/] }))
 
   app.use(async function (ctx) {
-    if (ctx.path.startsWith('/file/download')) {
+    if (ctx.path.startsWith('/file/outputDownload')) {
       let user = await UserService.decodejwt(ctx.header)
       if (user) {
-        let path = ctx.path.replace('/file/download', '')
-        const rs = await FileService.downloadFile(user, path)
+        let path = ctx.path.replace('/file/outputDownload', '')
+        const rs = await FileService.downloadOutput(user, path)
+        ctx.set('Content-disposition', `attachment; filename=${path}`)
+        ctx.set('Content-type', 'application/octet-stream')
+        ctx.body = rs
+      } else {
+        ctx.status = 500
+        return ctx
+      }
+    } else if (ctx.path.startsWith('/file/scriptDownload')) {
+      let user = await UserService.decodejwt(ctx.header)
+      if (user) {
+        let path = ctx.path.replace('/file/scriptDownload', '')
+        const rs = await FileService.downloadScript(user, path)
         ctx.set('Content-disposition', `attachment; filename=${path}`)
         ctx.set('Content-type', 'application/octet-stream')
         ctx.body = rs
@@ -53,7 +65,9 @@ const createServer = async (): Promise<Koa> => {
       }
     }
   })
+
   return app
 }
+
 
 export default createServer
