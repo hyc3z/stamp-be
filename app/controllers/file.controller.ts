@@ -143,7 +143,9 @@ export class FileController {
       // const response = await FileService.getScriptfilesChonky(user);
       const response = await FileService.getResultfilesDevExtreme(user)
       return response['items'].sort((a: any, b: any) => {
-        return b.name.localeCompare(a.name)
+        const idA = parseInt(a.match(/^slurm-(\d+).out/i)[1]);
+        const idB = parseInt(b.match(/^slurm-(\d+).out/i)[1]);
+        return idA < idB
       })
     } else {
       ctx.status = 500
