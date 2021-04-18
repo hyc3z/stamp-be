@@ -175,6 +175,40 @@ export class FileController {
     }
   }
 
+  @Get('/slurmConf')
+  async getSlurmConfdata(
+    @HeaderParams() param: any,
+    @QueryParam('path') path: string,
+    @Ctx() ctx: any,
+  ): Promise<any> {
+    let user = await UserService.decodejwt(param)
+    if (user) {
+      // const response = await FileService.getScriptfilesChonky(user);
+      const response = await FileService.getSlurmConfData()
+      return response
+    } else {
+      ctx.status = 500
+      return ctx
+    }
+  }
+
+  @Post('/slurmConf')
+  async postSlurmConfdata(
+    @HeaderParams() param: any,
+    @Body({ type: 'string' }) data: any,
+    @Ctx() ctx: any,
+  ): Promise<any> {
+    let user = await UserService.decodejwt(param)
+    if (user) {
+      // const response = await FileService.getScriptfilesChonky(user);
+      const response = await FileService.saveSlurmConfData(data)
+      return response
+    } else {
+      ctx.status = 500
+      return ctx
+    }
+  }
+
   @Get('/deleteScript')
   async deleteScript(
     @HeaderParams() param: any,

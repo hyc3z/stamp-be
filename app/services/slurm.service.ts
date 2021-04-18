@@ -12,6 +12,9 @@ import { SlurmJobBrief, SlurmJobBriefKeys, SlurmJobInfo } from '../meta/SlurmJob
 import { keys } from 'ts-transformer-keys'
 import { environment, STATE_WHEN_NOT_EXIST } from '../const/common'
 import { concateEnvs } from '../helpers/common'
+import { exec as cpexec } from 'child_process'
+import {promisify} from 'util'
+const exec = promisify(cpexec)
 const headerss = {
   'X-SLURM-USER-NAME': slurmcfg.jwt_user,
   'X-SLURM-USER-TOKEN': slurmcfg.jwt_token,
@@ -61,6 +64,43 @@ class SlurmRequest {
 }
 @Service()
 export class SlurmService extends SlurmRequest {
+  static async restartProcess(processName: any): Promise<any>{
+    const {stdout, stderr} = await exec(`systemctl restart ${processName}`)
+    if(!stderr) {
+      return true
+    }else {
+      return false
+    }
+
+  }
+  static async getProcessInfo(): Promise<any>{
+    const serviceList = ['slurmd', 'slurmctld', 'slurmdbd', 'slurmrestd']
+    const response = [];
+    await Promise.all(serviceList.map(async service => {
+      try {
+        const statusReg = /.*?Active: (.*?) \(/g
+          const pidReg = /.*?Main PID: (.*?) \(/g
+          const {stdout, stderr} = await exec(`systemctl status ${service}`).catch(err => {
+            return {
+              stdout: err.stdout,
+              stderr: err.stderr
+            }
+          })
+          const pstatus = statusReg.exec(stdout)
+          const pid = pidReg.exec(stdout)
+          response.push({
+            name: service,
+            status: pstatus[1], 
+            pid: pid[1]
+          })
+      } catch (error) {
+        console.log(error)
+      }
+        
+      })
+    )
+    return response
+  }
   static async submitjob(
     username: string,
     taskname: string,

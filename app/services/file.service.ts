@@ -80,8 +80,34 @@ export class FileService {
     return result
   }
 
+  static async saveSlurmConfData(
+    script: any,
+  ): Promise<any> {
+    let result = true
+    const userpath = '/etc/slurm/slurm.conf'
+    fs.writeFile(userpath, script, err => {
+      if (err) {
+        console.log(err)
+        result = false
+      }
+    })
+    return result
+  }
+
   static async getScriptFileData(username: string, path: string): Promise<any> {
     const userpath = await this.getDir(username, 'scripts', path)
+    try {
+      const content = fs.readFileSync(userpath, { encoding: 'utf-8' })
+      console.log('Get script data.')
+      return content
+    } catch (error) {
+      console.log(error)
+      return ''
+    }
+  }
+
+  static async getSlurmConfData(): Promise<any> {
+    const userpath = '/etc/slurm/slurm.conf'
     try {
       const content = fs.readFileSync(userpath, { encoding: 'utf-8' })
       console.log('Get script data.')
