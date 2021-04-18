@@ -1,4 +1,5 @@
 import { UserService } from 'app/services'
+import { ConfigService } from 'app/services/config.service';
 import {
   Get,
   JsonController,
@@ -7,7 +8,9 @@ import {
   Session,
   Ctx,
   HeaderParams,
-} from 'routing-controllers'
+  Post,
+  Body,
+} from 'routing-controllers';
 @JsonController('/config')
 export class ConfigController {
   @Get('/env')
@@ -56,4 +59,44 @@ export class ConfigController {
       return ctx
     }
   }
+
+  @Get('/get')
+  async getClusterConfig(@HeaderParams() param: any, @Ctx() ctx: any): Promise<any> {
+    let user = await UserService.decodejwt(param)
+    if (user && UserService.isAdmin(user)) {
+      try {
+        const userEnv = await ConfigService.getConfig()
+        ctx.status = userEnv ? 200 : 500
+        return userEnv
+      } catch (error) {
+        console.log(error)
+      }
+      // console.log(script)
+      
+    } else {
+      ctx.status = 500
+      return ctx
+    }
+  }
+
+  @Post('/set')
+  async setClusterConfig(@Body() body:any,@HeaderParams() param: any, @Ctx() ctx: any): Promise<any> {
+    let user = await UserService.decodejwt(param)
+    
+    if (user && UserService.isAdmin(user)) {
+      try {
+        const userEnv = await ConfigService.setConfig(body)
+        ctx.status = userEnv ? 200 : 500
+        return userEnv
+      } catch (error) {
+        console.log(error)
+      }
+      // console.log(script)
+      
+    } else {
+      ctx.status = 500
+      return ctx
+    }
+  }
+
 }
