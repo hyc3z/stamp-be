@@ -65,7 +65,7 @@ export class ConfigController {
     let user = await UserService.decodejwt(param)
     if (user && UserService.isAdmin(user)) {
       try {
-        const userEnv = await ConfigService.getConfig()
+        const userEnv = await ConfigService.getConfig(true)
         ctx.status = userEnv ? 200 : 500
         return userEnv
       } catch (error) {

@@ -9,15 +9,22 @@ import { StampTask } from 'app/entities'
 import {TUserTaxInfo} from '../meta/UserTaxInfo'
 import { diffSeconds } from 'app/helpers/common'
 import { UserService } from './user.service'
+import { ConfigService } from './config.service'
 @Service()
 export class MetricsService {
 
     static async processTasks(tasks: StampTask[]): Promise<TUserTaxInfo[]> {
         const userTaxInfo = {} as {[username: string]:TUserTaxInfo}
+        const configs = {}
+        const rawConfig = await ConfigService.getConfig()
+        rawConfig.forEach(config => {
+            Object.assign(configs, { [config.envKey]: config.envVal})
+        })
+        console.log(configs)
         await Promise.all(tasks.map(async (task: StampTask) =>{
             const diff = diffSeconds(task.startTime, task.finishTime)
             const coreHours = (task.resourceAmount * diff / 3600)
-            const cost = coreHours * 0;
+            const cost = coreHours * configs['price'];
             const userName = await UserService.getUserName(task.userId)
             if(userName in userTaxInfo) {
                 userTaxInfo[`${userName}`].total_corehours += coreHours

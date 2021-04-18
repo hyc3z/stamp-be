@@ -8,9 +8,10 @@ import jsonwebtoken from 'jsonwebtoken'
 import { decode } from 'querystring'
 import { StampClusterEnv } from 'app/entities/StampClusterEnv'
 import defaultClusterConfig, { backTranslateConfig, translateConfig } from '../../configs/cluster'
+import { execSync } from 'node:child_process'
 @Service()
 export class ConfigService {
-    static async getConfig(): Promise<any>{
+    static async getConfig(translate?: boolean): Promise<any>{
         let configs = await getConnection().getRepository(StampClusterEnv).find()
         if(defaultClusterConfig) {
             const result = await Promise.all(Object.keys(defaultClusterConfig).map(async (key: string) => {
@@ -24,11 +25,16 @@ export class ConfigService {
                 }
                 return exists
             }))
-            return result.map((config: StampClusterEnv) => {
-                return {
-                    [translateConfig[`${config.envKey}`]]: config.envVal
-                }
-            })
+            if(translate){
+                return result.map((config: StampClusterEnv) => {
+                    return {
+                        [translateConfig[`${config.envKey}`]]: config.envVal
+                    }
+                })
+            }else{
+                return result
+            }
+            
         }
         
     }
