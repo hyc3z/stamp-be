@@ -8,7 +8,6 @@ import jsonwebtoken from 'jsonwebtoken'
 import { decode } from 'querystring'
 import { StampClusterEnv } from 'app/entities/StampClusterEnv'
 import defaultClusterConfig, { backTranslateConfig, translateConfig } from '../../configs/cluster'
-import { execSync } from 'node:child_process'
 @Service()
 export class ConfigService {
     static async getConfig(translate?: boolean): Promise<any>{
